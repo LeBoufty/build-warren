@@ -239,6 +239,7 @@ impl OrderEntry {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildOrder {
+    id: u32,
     name: String,
     description: Option<String>,
     vod: Option<String>,
@@ -256,6 +257,7 @@ pub struct BuildOrder {
 impl BuildOrder {
     pub fn new() -> Self {
         BuildOrder {
+            id: 0,
             name: String::new(),
             description: None,
             vod: None,
@@ -269,6 +271,9 @@ impl BuildOrder {
             difficulty: None,
             entries: Vec::new(),
         }
+    }
+    pub fn set_id(&mut self, id: u32) {
+        self.id = id;
     }
     pub fn set_name(&mut self, name: String) {
         self.name = name;
@@ -305,6 +310,9 @@ impl BuildOrder {
     }
     pub fn add_step(&mut self, entry: OrderEntry) {
         self.entries.push(entry);
+    }
+    pub fn get_id(&self) -> u32 {
+        self.id
     }
     pub fn get_name(&self) -> &str {
         &self.name

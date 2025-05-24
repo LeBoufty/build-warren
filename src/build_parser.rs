@@ -162,8 +162,9 @@ impl BuildOrder {
 }
 
 /// Parses a build order from the given HTML content and returns a `BuildOrder`.
-pub fn parse_build_order(html_content: &str) -> Result<BuildOrder, BuildOrderError> {
+pub fn parse_build_order(html_content: &str, id: u32) -> Result<BuildOrder, BuildOrderError> {
     let mut build_order = BuildOrder::new();
+    build_order.set_id(id);
     let header = extract_header(html_content);
     build_order.set_header(header);
 
@@ -205,7 +206,7 @@ pub fn fetch_build_order(build_id: u32) -> Result<BuildOrder, BuildOrderError> {
                     url, response.status_code,
                 )));
             }
-            parse_build_order(&response.body)
+            parse_build_order(&response.body, build_id)
         }
         Err(e) => Err(BuildOrderError::HttpError(e)),
     }

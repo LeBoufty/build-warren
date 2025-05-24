@@ -10,8 +10,10 @@ fn test_parse_clemvsmaxpax() {
     let file_name = "tests/examples/clemvsmaxpax.html";
     let html_content = open_file(file_name);
     assert!(!html_content.is_empty(), "HTML content should not be empty");
-    let build_order = parse_build_order(&html_content).expect("Failed to parse build order");
+    let build_order =
+        parse_build_order(&html_content, 193576).expect("Failed to parse build order");
 
+    assert_eq!(build_order.get_id(), 193576);
     assert_eq!(build_order.get_name(), "Clem 3reapers 2hellions TvP");
     assert_eq!(build_order.get_player_race(), &Race::Terran);
     assert_eq!(build_order.get_opponent_race(), &Race::Protoss);
@@ -41,8 +43,9 @@ fn test_parse_oldestbuild() {
     let file_name = "tests/examples/oldestbuild.html";
     let html_content = open_file(file_name);
     assert!(!html_content.is_empty(), "HTML content should not be empty");
-    let build_order = parse_build_order(&html_content).expect("Failed to parse build order");
+    let build_order = parse_build_order(&html_content, 5).expect("Failed to parse build order");
 
+    assert_eq!(build_order.get_id(), 5);
     assert_eq!(build_order.get_name(), "Pseudorandom (ZvP (2))");
     assert_eq!(build_order.get_player_race(), &Race::Zerg);
     assert_eq!(build_order.get_opponent_race(), &Race::Protoss);
