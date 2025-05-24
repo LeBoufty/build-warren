@@ -22,3 +22,4 @@ target/
 
 # The output for data files
 output/
+tests/examples
