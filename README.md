@@ -38,3 +38,11 @@ You can also specify an output file as with `fetch`.
 ```Bash
 cargo run -- -o builds.json fetch-latest 20 # Fetches the twenty latest public builds and saves them to builds.json
 ```
+
+## Roadmap
+
+* [ ] Better CLI interface, with progress bars, styling and more detailed progress
+* [ ] Database integration (possibly MongoDB)
+* [ ] Live updates -- checking if new builds have been posted
+* [ ] Deployment with an actual API
+* [ ] Live overlay
