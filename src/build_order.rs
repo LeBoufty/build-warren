@@ -109,6 +109,12 @@ pub struct Votes {
     count: u32,
 }
 
+impl fmt::Display for Votes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}% ({} votes)", self.score, self.count)
+    }
+}
+
 pub enum ActionType {
     Worker,
     Unit,
@@ -145,12 +151,63 @@ impl FromStr for ActionType {
     }
 }
 
+pub struct Action {
+    action_type: ActionType,
+    name: String,
+}
+
+impl Action {
+    pub fn new(action_type: ActionType, name: String) -> Self {
+        Action { action_type, name }
+    }
+}
+
+impl fmt::Display for Action {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", self.action_type, self.name)
+    }
+}
+
 pub struct OrderEntry {
     supply: u8,
     timestamp: NaiveTime,
-    action_type: ActionType,
-    action: String,
+    actions: Vec<Action>,
     comment: Option<String>,
+}
+
+impl fmt::Display for OrderEntry {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let comment_str = self.comment.as_deref().unwrap_or("");
+        write!(
+            f,
+            "{} supply at {}: [{}] {}",
+            self.supply,
+            self.timestamp,
+            self.actions
+                .iter()
+                .map(|action| action.to_string())
+                .collect::<Vec<String>>()
+                .join(", "),
+            comment_str
+        )
+    }
+}
+
+impl OrderEntry {
+    pub fn new(supply: u8, time: String, actions: Vec<Action>, comment: String) -> Self {
+        let timestamp = NaiveTime::parse_from_str(&time, "%H:%M:%S")
+            .unwrap_or(NaiveTime::parse_from_str(&time, "%M:%S").unwrap());
+        OrderEntry {
+            supply,
+            timestamp,
+            actions,
+            comment: if comment.is_empty() {
+                None
+            } else {
+                Some(comment)
+            },
+        }
+    }
 }
 
 pub struct BuildOrder {
@@ -166,4 +223,66 @@ pub struct BuildOrder {
     patch: String,
     difficulty: Option<Difficulty>,
     entries: Vec<OrderEntry>,
+}
+
+impl BuildOrder {
+    pub fn new() -> Self {
+        BuildOrder {
+            name: String::new(),
+            description: None,
+            vod: None,
+            player_race: Race::Any,
+            opponent_race: Race::Any,
+            build_type: BuildType::None,
+            creator: String::new(),
+            votes: None,
+            published: None,
+            patch: String::new(),
+            difficulty: None,
+            entries: Vec::new(),
+        }
+    }
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+    pub fn set_description(&mut self, description: String) {
+        self.description = Some(description);
+    }
+    pub fn set_vod(&mut self, vod: String) {
+        self.vod = Some(vod);
+    }
+    pub fn set_player_race(&mut self, race: Race) {
+        self.player_race = race;
+    }
+    pub fn set_opponent_race(&mut self, race: Race) {
+        self.opponent_race = race;
+    }
+    pub fn set_build_type(&mut self, build_type: BuildType) {
+        self.build_type = build_type;
+    }
+    pub fn set_creator(&mut self, creator: String) {
+        self.creator = creator;
+    }
+    pub fn set_votes(&mut self, score: u32, count: u32) {
+        self.votes = Some(Votes { score, count });
+    }
+    pub fn set_published(&mut self, date: NaiveDate) {
+        self.published = Some(date);
+    }
+    pub fn set_patch(&mut self, patch: String) {
+        self.patch = patch;
+    }
+    pub fn set_difficulty(&mut self, difficulty: Difficulty) {
+        self.difficulty = Some(difficulty);
+    }
+    pub fn add_step(&mut self, entry: OrderEntry) {
+        self.entries.push(entry);
+    }
+}
+
+#[derive(Debug)]
+pub enum BuildOrderError {
+    ParseError(String),
+    InvalidData(String),
+    HttpError(String),
 }
