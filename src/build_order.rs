@@ -357,4 +357,16 @@ pub enum BuildOrderError {
     ParseError(String),
     InvalidData(String),
     HttpError(String),
+    Cloaked,
+}
+
+impl fmt::Display for BuildOrderError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            BuildOrderError::ParseError(msg) => write!(f, "Parse Error: {}", msg),
+            BuildOrderError::InvalidData(msg) => write!(f, "Invalid Data: {}", msg),
+            BuildOrderError::HttpError(msg) => write!(f, "HTTP Error: {}", msg),
+            BuildOrderError::Cloaked => write!(f, "Build order is cloaked."),
+        }
+    }
 }
