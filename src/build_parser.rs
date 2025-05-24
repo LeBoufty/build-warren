@@ -196,13 +196,14 @@ pub fn parse_build_order(html_content: &str) -> Result<BuildOrder, BuildOrderErr
 }
 
 pub fn fetch_build_order(build_id: u32) -> Result<BuildOrder, BuildOrderError> {
-    let url = format!("{}{}", BUILD_URL, build_id);
+    let url = format!("{}{}/", BUILD_URL, build_id);
     match HttpClient::fetch_url(&url) {
         Ok(response) => {
             if response.status_code != 200 {
-                return Err(BuildOrderError::HttpError(
-                    "Failed to fetch build order".to_string(),
-                ));
+                return Err(BuildOrderError::HttpError(format!(
+                    "Failed to fetch build order (URL: {} ) (Status: {})",
+                    url, response.status_code,
+                )));
             }
             parse_build_order(&response.body)
         }

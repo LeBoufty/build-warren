@@ -1,9 +1,10 @@
 extern crate chrono;
 use chrono::{NaiveDate, NaiveTime};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Race {
     Terran,
     Protoss,
@@ -37,7 +38,7 @@ impl FromStr for Race {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BuildType {
     Cheese,
     AllIn,
@@ -77,7 +78,7 @@ impl FromStr for BuildType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Difficulty {
     Easy,
     Medium,
@@ -108,7 +109,7 @@ impl FromStr for Difficulty {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Votes {
     score: u32,
     count: u32,
@@ -134,7 +135,7 @@ impl Votes {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ActionType {
     Worker,
     Unit,
@@ -171,7 +172,7 @@ impl FromStr for ActionType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Action {
     action_type: ActionType,
     name: String,
@@ -189,7 +190,7 @@ impl fmt::Display for Action {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OrderEntry {
     supply: u8,
     timestamp: NaiveTime,
@@ -236,7 +237,7 @@ impl OrderEntry {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildOrder {
     name: String,
     description: Option<String>,
@@ -343,7 +344,7 @@ impl BuildOrder {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum BuildOrderError {
     ParseError(String),
     InvalidData(String),

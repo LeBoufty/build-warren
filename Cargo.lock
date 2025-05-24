@@ -112,6 +112,8 @@ dependencies = [
  "curl",
  "mockito",
  "onig",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -160,6 +162,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-link",
 ]
