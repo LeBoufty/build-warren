@@ -1,7 +1,9 @@
 [package]
-name = "build-warren"
+name = "build_warren"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 curl = "0.4.47"
+mockito = "1.7.0"
+regex = "1.11.1"
