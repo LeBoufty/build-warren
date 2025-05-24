@@ -2,22 +2,28 @@ name: Rust
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: cargo build --verbose
+      - uses: actions/checkout@v4
 
-    - name: Test
-      run: cargo test --verbose
+      - name: Download test files
+        run: |
+          mkdir -p tests/examples
+          curl -L -o tests/examples/oldestbuild.html https://lotv.spawningtool.com/build/5/
+          curl -L -o tests/examples/clemvsmaxpax.html https://lotv.spawningtool.com/build/193576/
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Test
+        run: cargo test --verbose
