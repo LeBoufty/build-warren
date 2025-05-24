@@ -1,5 +1,5 @@
 use crate::http_client::HttpClient;
-use regex::Regex;
+use onig::Regex;
 
 /// Lowest index that points to an available build order
 const LOWEST_INDEX: u32 = 5;
@@ -19,9 +19,9 @@ pub fn get_highest_index(url: &str) -> u32 {
         Ok(response) => {
             let re = Regex::new(FIRST_BUILD_REGEX).unwrap();
             if let Some(captures) = re.captures(&response.body) {
-                captures.get(1).map_or(LOWEST_INDEX, |m| {
-                    m.as_str().parse::<u32>().unwrap_or(LOWEST_INDEX)
-                })
+                captures
+                    .at(1)
+                    .map_or(LOWEST_INDEX, |m| m.parse::<u32>().unwrap_or(LOWEST_INDEX))
             } else {
                 LOWEST_INDEX
             }

@@ -4,7 +4,7 @@ use crate::build_order::{
 use crate::build_regex::*;
 use crate::http_client::HttpClient;
 use chrono::NaiveDate;
-use regex::Regex;
+use onig::Regex;
 use std::str::FromStr;
 
 pub const BUILD_URL: &str = "https://lotv.spawningtool.com/build/";
@@ -33,17 +33,17 @@ fn extract_header(html_content: &str) -> HeaderContent {
     };
     let re = Regex::new(HEADER_REGEX).unwrap();
     let captures = re.captures(html_content).unwrap();
-    if let Some(name) = captures.get(1) {
-        content.name = name.as_str().to_string();
+    if let Some(name) = captures.at(1) {
+        content.name = name.to_string();
     }
-    if let Some(player_race) = captures.get(2) {
-        content.player_race = player_race.as_str().to_string();
+    if let Some(player_race) = captures.at(2) {
+        content.player_race = player_race.to_string();
     }
-    if let Some(opponent_race) = captures.get(3) {
-        content.opponent_race = opponent_race.as_str().to_string();
+    if let Some(opponent_race) = captures.at(3) {
+        content.opponent_race = opponent_race.to_string();
     }
-    if let Some(build_type) = captures.get(4) {
-        content.build_type = build_type.as_str().to_string();
+    if let Some(build_type) = captures.at(4) {
+        content.build_type = build_type.to_string();
     }
     content
 }
@@ -58,19 +58,19 @@ fn extract_details(html_content: &str) -> DetailsContent {
     };
     let re = Regex::new(DETAILS_REGEX).unwrap();
     if let Some(captures) = re.captures(html_content) {
-        if let Some(author) = captures.get(1) {
-            content.author = author.as_str().to_string();
+        if let Some(author) = captures.at(1) {
+            content.author = author.to_string();
         }
-        if let Some(published) = captures.get(2) {
-            if !published.as_str().is_empty() {
-                content.published = Some(published.as_str().to_string());
+        if let Some(published) = captures.at(2) {
+            if !published.is_empty() {
+                content.published = Some(published.to_string());
             }
         }
-        if let Some(patch) = captures.get(3) {
-            content.patch = patch.as_str().to_string();
+        if let Some(patch) = captures.at(3) {
+            content.patch = patch.to_string();
         }
-        if let Some(difficulty) = captures.get(4) {
-            content.difficulty = Some(difficulty.as_str().to_string());
+        if let Some(difficulty) = captures.at(4) {
+            content.difficulty = Some(difficulty.to_string());
         }
     }
     content
@@ -80,14 +80,14 @@ fn extract_details(html_content: &str) -> DetailsContent {
 fn extract_description(html_content: &str) -> Option<String> {
     let re = Regex::new(DESCRIPTION_REGEX).unwrap();
     re.captures(html_content)
-        .and_then(|captures| captures.get(1).map(|m| m.as_str().to_string()))
+        .and_then(|captures| captures.at(1).map(|m| m.to_string()))
 }
 
 /// Extracts the VOD from the HTML content.
 fn extract_vod(html_content: &str) -> Option<String> {
     let re = Regex::new(VOD_REGEX).unwrap();
     re.captures(html_content)
-        .and_then(|captures| captures.get(1).map(|m| m.as_str().to_string()))
+        .and_then(|captures| captures.at(1).map(|m| m.to_string()))
 }
 
 /// Extracts the votes from the HTML content.
@@ -95,8 +95,8 @@ fn extract_votes(html_content: &str) -> Option<(u32, u32)> {
     let re = Regex::new(VOTES_REGEX).unwrap();
     re.captures(html_content).and_then(|captures| {
         if captures.len() == 3 {
-            let percentage = captures.get(1)?.as_str().parse::<u32>().ok()?;
-            let votes = captures.get(2)?.as_str().parse::<u32>().ok()?;
+            let percentage = captures.at(1)?.parse::<u32>().ok()?;
+            let votes = captures.at(2)?.parse::<u32>().ok()?;
             Some((percentage, votes))
         } else {
             None
@@ -109,26 +109,26 @@ fn extract_steps(html_content: &str) -> Result<Vec<OrderEntry>, BuildOrderError>
     let mut steps = Vec::new();
     let re = Regex::new(BUILD_TABLE_REGEX).unwrap();
     if let Some(captures) = re.captures(html_content) {
-        let table_content = captures.get(1).map_or("", |m| m.as_str());
+        let table_content = captures.at(1).unwrap_or("");
         let entry_re = Regex::new(BUILD_ENTRY_REGEX).unwrap();
         for entry in entry_re.captures_iter(table_content) {
             if entry.len() < 5 {
                 continue; // Skip invalid entries
             }
-            let supply: u8 = entry[1].parse().unwrap();
-            let time = entry[2].to_string();
-            let actions_html = entry[3].to_string();
+            let supply: u8 = entry.at(1).unwrap().parse().unwrap();
+            let time = entry.at(2).unwrap().to_string();
+            let actions_html = entry.at(3).unwrap().to_string();
             let action_re = Regex::new(BUILD_ACTION_REGEX).unwrap();
             let mut actions = Vec::new();
             for action in action_re.captures_iter(&actions_html) {
                 if action.len() < 3 {
                     continue; // Skip invalid actions
                 }
-                let action_type = ActionType::from_str(&action[1]).unwrap();
-                let name = action[2].to_string();
+                let action_type = ActionType::from_str(&action.at(1).unwrap()).unwrap();
+                let name = action.at(2).unwrap().to_string();
                 actions.push(Action::new(action_type, name));
             }
-            let comment = entry[4].to_string();
+            let comment = entry.at(4).unwrap().to_string();
             steps.push(OrderEntry::new(supply, time, actions, comment));
         }
     } else {

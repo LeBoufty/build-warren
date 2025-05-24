@@ -1,7 +1,9 @@
+extern crate chrono;
 use chrono::{NaiveDate, NaiveTime};
 use std::fmt;
 use std::str::FromStr;
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Race {
     Terran,
     Protoss,
@@ -35,6 +37,7 @@ impl FromStr for Race {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum BuildType {
     Cheese,
     AllIn,
@@ -74,6 +77,7 @@ impl FromStr for BuildType {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Difficulty {
     Easy,
     Medium,
@@ -104,6 +108,7 @@ impl FromStr for Difficulty {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Votes {
     score: u32,
     count: u32,
@@ -115,6 +120,21 @@ impl fmt::Display for Votes {
     }
 }
 
+impl Votes {
+    pub fn new(score: u32, count: u32) -> Self {
+        Votes { score, count }
+    }
+
+    pub fn get_score(&self) -> u32 {
+        self.score
+    }
+
+    pub fn get_count(&self) -> u32 {
+        self.count
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum ActionType {
     Worker,
     Unit,
@@ -151,6 +171,7 @@ impl FromStr for ActionType {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Action {
     action_type: ActionType,
     name: String,
@@ -168,6 +189,7 @@ impl fmt::Display for Action {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct OrderEntry {
     supply: u8,
     timestamp: NaiveTime,
@@ -195,8 +217,12 @@ impl fmt::Display for OrderEntry {
 
 impl OrderEntry {
     pub fn new(supply: u8, time: String, actions: Vec<Action>, comment: String) -> Self {
-        let timestamp = NaiveTime::parse_from_str(&time, "%H:%M:%S")
-            .unwrap_or(NaiveTime::parse_from_str(&time, "%M:%S").unwrap());
+        let timevec: Vec<u32> = time.split(':').map(|s| s.parse().unwrap_or(0)).collect();
+        let timestamp = if timevec.len() == 2 {
+            NaiveTime::from_hms_opt(0, timevec[0], timevec[1]).unwrap()
+        } else {
+            NaiveTime::from_hms_opt(timevec[0], timevec[1], timevec[2]).unwrap()
+        };
         OrderEntry {
             supply,
             timestamp,
@@ -210,6 +236,7 @@ impl OrderEntry {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct BuildOrder {
     name: String,
     description: Option<String>,
@@ -277,6 +304,42 @@ impl BuildOrder {
     }
     pub fn add_step(&mut self, entry: OrderEntry) {
         self.entries.push(entry);
+    }
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn get_description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+    pub fn get_vod(&self) -> Option<&str> {
+        self.vod.as_deref()
+    }
+    pub fn get_player_race(&self) -> &Race {
+        &self.player_race
+    }
+    pub fn get_opponent_race(&self) -> &Race {
+        &self.opponent_race
+    }
+    pub fn get_build_type(&self) -> &BuildType {
+        &self.build_type
+    }
+    pub fn get_creator(&self) -> &str {
+        &self.creator
+    }
+    pub fn get_votes(&self) -> Option<&Votes> {
+        self.votes.as_ref()
+    }
+    pub fn get_published(&self) -> Option<&NaiveDate> {
+        self.published.as_ref()
+    }
+    pub fn get_patch(&self) -> &str {
+        &self.patch
+    }
+    pub fn get_difficulty(&self) -> Option<&Difficulty> {
+        self.difficulty.as_ref()
+    }
+    pub fn get_entries(&self) -> &[OrderEntry] {
+        &self.entries
     }
 }
 
