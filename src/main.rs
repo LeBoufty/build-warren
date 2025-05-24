@@ -1,4 +1,4 @@
-use build_warren::index_manager::get_st_highest_index;
+use build_warren::index_manager::{LOWEST_INDEX, get_st_highest_index};
 use build_warren::{build_order::BuildOrderError, build_parser::fetch_build_order};
 use clap::{Parser, Subcommand};
 use serde_json;
@@ -61,8 +61,8 @@ fn main() {
         },
         Some(Commands::FetchLatest { count }) => {
             let highest_index = get_st_highest_index();
-            let mut end_index = if *count > highest_index {
-                1
+            let mut end_index = if *count > highest_index - LOWEST_INDEX {
+                LOWEST_INDEX
             } else {
                 highest_index - *count + 1
             };
@@ -79,7 +79,11 @@ fn main() {
                     Err(e) => {
                         if e.eq(&BuildOrderError::Cloaked) {
                             eprintln!("Build order {} is cloaked, skipping.", current_id);
-                            end_index -= 1 // Decrease end_index to compensate for the skipped build
+                            end_index = if end_index > LOWEST_INDEX {
+                                end_index - 1
+                            } else {
+                                LOWEST_INDEX
+                            } // Decrease end_index to compensate for the skipped build
                         } else {
                             eprintln!("Error fetching build order {}: {}", current_id, e);
                         }

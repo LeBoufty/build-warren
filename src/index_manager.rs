@@ -2,7 +2,7 @@ use crate::http_client::HttpClient;
 use onig::Regex;
 
 /// Lowest index that points to an available build order
-const LOWEST_INDEX: u32 = 5;
+pub const LOWEST_INDEX: u32 = 5;
 /// URL to the newest builds page
 pub static BUILDS_URL: &str = "https://lotv.spawningtool.com/build/?name=&contributor=&sort_by=r&build_type=&difficulty=&patch=&mine=&fav=&is_tl=";
 /// Regex to find the first build index in the HTML response
