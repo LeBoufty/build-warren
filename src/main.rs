@@ -2,6 +2,7 @@ use build_warren::build_parser::fetch_build_order;
 use build_warren::handlers::{fetch_latest, fetch_segment};
 use build_warren::index_manager::get_st_highest_index;
 use clap::{Parser, Subcommand};
+use console::{Emoji, style};
 use serde_json;
 use std::fs;
 
@@ -42,8 +43,18 @@ enum Commands {
     },
 }
 
+static CLIPBOARD_EMOJI: Emoji = Emoji("📋 ", "");
+static OUTPUT_EMOJI: Emoji = Emoji("📂 ", "");
+
 fn main() {
     let cli = Cli::parse();
+
+    println!(
+        "{} {} {}",
+        CLIPBOARD_EMOJI,
+        style("Build Warren CLI").bold().magenta(),
+        style("v0.1.0").dim()
+    );
 
     match &cli.command {
         Some(Commands::BuildCount) => {
@@ -51,6 +62,12 @@ fn main() {
             if let Some(output_file) = &cli.output {
                 fs::write(output_file, highest_index.to_string())
                     .expect("Failed to write to output file");
+                println!(
+                    "{} {}Highest build index written to {}",
+                    OUTPUT_EMOJI,
+                    style("Success : ").green(),
+                    output_file
+                );
             } else {
                 println!("Highest build index: {}", highest_index);
             }
@@ -62,6 +79,13 @@ fn main() {
                 if let Some(output_file) = &cli.output {
                     fs::write(output_file, json_output)
                         .expect("Failed to write build order to output file");
+                    println!(
+                        "{} {}Build order {} written to {}",
+                        OUTPUT_EMOJI,
+                        style("Success : ").green(),
+                        id,
+                        output_file
+                    );
                 } else {
                     println!("{}", json_output);
                 }
@@ -75,6 +99,13 @@ fn main() {
             if let Some(output_file) = &cli.output {
                 fs::write(output_file, json_output)
                     .expect("Failed to write build orders to output file");
+                println!(
+                    "{} {}Latest {} build orders written to {}",
+                    OUTPUT_EMOJI,
+                    style("Success : ").green(),
+                    count,
+                    output_file
+                );
             } else {
                 println!("{}", json_output);
             }
@@ -89,6 +120,14 @@ fn main() {
             if let Some(output_file) = &cli.output {
                 fs::write(output_file, json_output)
                     .expect("Failed to write build orders to output file");
+                println!(
+                    "{} {}Build orders from {} to {} written to {}",
+                    OUTPUT_EMOJI,
+                    style("Success : ").green(),
+                    start,
+                    end,
+                    output_file
+                );
             } else {
                 println!("{}", json_output);
             }
