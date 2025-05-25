@@ -31,6 +31,7 @@ pub fn fetch_latest(count: u32) -> Vec<BuildOrder> {
             Ok(build_order) => {
                 build_orders.push(build_order);
                 increment += 1;
+                pb.inc(1);
             }
             Err(e) => {
                 if e.eq(&BuildOrderError::Cloaked) {
