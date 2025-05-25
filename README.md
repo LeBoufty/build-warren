@@ -39,6 +39,12 @@ You can also specify an output file as with `fetch`.
 cargo run -- -o builds.json fetch-latest 20 # Fetches the twenty latest public builds and saves them to builds.json
 ```
 
+### Get a batch of build orders
+
+```Bash
+cargo run fetch-segment 141 145 # Fetches build orders 141-145 (both included)
+```
+
 ## Roadmap
 
 * [ ] Better CLI interface, with progress bars, styling and more detailed progress

@@ -1,5 +1,6 @@
-use build_warren::index_manager::{LOWEST_INDEX, get_st_highest_index};
-use build_warren::{build_order::BuildOrderError, build_parser::fetch_build_order};
+use build_warren::build_parser::fetch_build_order;
+use build_warren::handlers::{fetch_latest, fetch_segment};
+use build_warren::index_manager::get_st_highest_index;
 use clap::{Parser, Subcommand};
 use serde_json;
 use std::fs;
@@ -31,6 +32,14 @@ enum Commands {
         #[arg(default_value_t = 1)]
         count: u32,
     },
+
+    /// Fetch a segment of build orders
+    FetchSegment {
+        /// The starting index of the segment
+        start: u32,
+        /// The ending index of the segment
+        end: u32,
+    },
 }
 
 fn main() {
@@ -60,38 +69,7 @@ fn main() {
             Err(e) => eprintln!("Error fetching build order: {}", e),
         },
         Some(Commands::FetchLatest { count }) => {
-            let highest_index = get_st_highest_index();
-            let mut end_index = if *count > highest_index - LOWEST_INDEX {
-                LOWEST_INDEX
-            } else {
-                highest_index - *count + 1
-            };
-            let mut increment = 0;
-            let mut current_id = highest_index;
-            let mut build_orders = Vec::new();
-            while current_id >= end_index && build_orders.len() < *count as usize {
-                current_id = highest_index - increment;
-                match fetch_build_order(current_id) {
-                    Ok(build_order) => {
-                        build_orders.push(build_order);
-                        increment += 1;
-                    }
-                    Err(e) => {
-                        if e.eq(&BuildOrderError::Cloaked) {
-                            eprintln!("Build order {} is cloaked, skipping.", current_id);
-                            end_index = if end_index > LOWEST_INDEX {
-                                end_index - 1
-                            } else {
-                                LOWEST_INDEX
-                            } // Decrease end_index to compensate for the skipped build
-                        } else {
-                            eprintln!("Error fetching build order {}: {}", current_id, e);
-                        }
-                        increment += 1; // Increment to avoid infinite loop
-                        continue; // Some builds might not be available, continue fetching
-                    }
-                }
-            }
+            let build_orders = fetch_latest(*count);
             let json_output = serde_json::to_string_pretty(&build_orders)
                 .expect("Failed to serialize build orders to JSON");
             if let Some(output_file) = &cli.output {
@@ -103,6 +81,17 @@ fn main() {
         }
         None => {
             eprintln!("No command provided. Use --help to see available commands.");
+        }
+        Some(Commands::FetchSegment { start, end }) => {
+            let build_orders = fetch_segment(*start, *end);
+            let json_output = serde_json::to_string_pretty(&build_orders)
+                .expect("Failed to serialize build orders to JSON");
+            if let Some(output_file) = &cli.output {
+                fs::write(output_file, json_output)
+                    .expect("Failed to write build orders to output file");
+            } else {
+                println!("{}", json_output);
+            }
         }
     }
 }
