@@ -193,36 +193,20 @@ impl fmt::Display for Action {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OrderEntry {
     supply: u8,
-    timestamp: NaiveTime,
+    timestamp: Option<NaiveTime>,
     actions: Vec<Action>,
     comment: Option<String>,
-}
-
-impl fmt::Display for OrderEntry {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let comment_str = self.comment.as_deref().unwrap_or("");
-        write!(
-            f,
-            "{} supply at {}: [{}] {}",
-            self.supply,
-            self.timestamp,
-            self.actions
-                .iter()
-                .map(|action| action.to_string())
-                .collect::<Vec<String>>()
-                .join(", "),
-            comment_str
-        )
-    }
 }
 
 impl OrderEntry {
     pub fn new(supply: u8, time: String, actions: Vec<Action>, comment: String) -> Self {
         let timevec: Vec<u32> = time.split(':').map(|s| s.parse().unwrap_or(0)).collect();
-        let timestamp = if timevec.len() == 2 {
-            NaiveTime::from_hms_opt(0, timevec[0], timevec[1]).unwrap()
+        let timestamp = if time.len() == 0 {
+            None
+        } else if timevec.len() == 2 {
+            Some(NaiveTime::from_hms_opt(0, timevec[0], timevec[1]).unwrap())
         } else {
-            NaiveTime::from_hms_opt(timevec[0], timevec[1], timevec[2]).unwrap()
+            Some(NaiveTime::from_hms_opt(timevec[0], timevec[1], timevec[2]).unwrap())
         };
         OrderEntry {
             supply,
