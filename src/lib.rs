@@ -1,3 +1,4 @@
+pub mod api;
 pub mod build_order;
 pub mod build_parser;
 pub mod build_regex;

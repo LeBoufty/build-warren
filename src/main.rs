@@ -1,3 +1,4 @@
+use build_warren::api::run;
 use build_warren::build_parser::fetch_build_order;
 use build_warren::handlers::{fetch_latest, fetch_segment};
 use build_warren::index_manager::get_st_highest_index;
@@ -41,10 +42,18 @@ enum Commands {
         /// The ending index of the segment
         end: u32,
     },
+
+    /// Start the HTTP server
+    Listen {
+        /// The port to run the server on
+        #[arg(short, long, default_value_t = 8080)]
+        port: u16,
+    },
 }
 
 static CLIPBOARD_EMOJI: Emoji = Emoji("📋 ", "");
 static OUTPUT_EMOJI: Emoji = Emoji("📂 ", "");
+static SERVER_EMOJI: Emoji = Emoji("🔭 ", "");
 
 fn main() {
     let cli = Cli::parse();
@@ -130,6 +139,17 @@ fn main() {
                 );
             } else {
                 println!("{}", json_output);
+            }
+        }
+        Some(Commands::Listen { port }) => {
+            println!(
+                "{} {}Starting HTTP server on port {}",
+                SERVER_EMOJI,
+                style("Info : ").blue(),
+                port
+            );
+            if let Err(e) = run(*port) {
+                eprintln!("Error starting server: {}", e);
             }
         }
     }
