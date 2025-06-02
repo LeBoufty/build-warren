@@ -1,5 +1,7 @@
 ![title](img/buildwarrentitle.png)
 
+Unofficial API for Spawning Tool.
+
 ## Project summary
 
 Build Warren aims to be an API endpoint for Spawning Tool, which lacks one. My end goal is to create an open source alternative to Spawning Tool's Build Advisor, as I don't like Overwolf's invasiveness.
