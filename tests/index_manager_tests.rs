@@ -1,4 +1,4 @@
-use build_warren::index_manager::get_st_highest_index;
+use build_warren::index_manager::get_highest_index;
 use mockito::Server;
 
 #[test]
@@ -21,7 +21,8 @@ fn test_get_highest_index() {
         .create();
 
     // Call the function and assert the result
-    let highest_index = get_st_highest_index();
+    let url = server.url().to_owned() + "/build/";
+    let highest_index = get_highest_index(&url);
     assert_eq!(
         highest_index, 193844,
         "Expected highest index to be 193844, got {}",
