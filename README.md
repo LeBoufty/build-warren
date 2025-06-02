@@ -1,5 +1,4 @@
-# build-warren
-Unofficial API for Spawning Tool
+![title](img/buildwarrentitle.png)
 
 ## Project summary
 
