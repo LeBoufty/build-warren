@@ -47,8 +47,19 @@ cargo run fetch-segment 141 145 # Fetches build orders 141-145 (both included)
 
 ## Roadmap
 
+### Without storage
+
 * [x] Better CLI interface, with progress bars, styling and more detailed progress
+* [x] Deployment with an actual API
+
+### With storage
+
 * [ ] Database integration (possibly MongoDB)
 * [ ] Live updates -- checking if new builds have been posted
-* [ ] Deployment with an actual API
-* [ ] Live overlay
+
+### Live overlay
+
+* [ ] Build display
+* [ ] Timer management
+* [ ] Styling and icons
+* [ ] Build browsing
